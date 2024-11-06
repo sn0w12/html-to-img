@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
+const puppeteer = require("puppeteer-core");
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const chromium = require("@sparticuz/chromium");
-import puppeteer from "puppeteer-core";
-
-const isDev = process.env.NODE_ENV === "development";
 
 type RequestBody = {
   htmlBase64: string;
@@ -39,32 +38,13 @@ export async function POST(request: Request): Promise<Response> {
   let browser = null;
 
   try {
-    const options = isDev
-      ? {
-          // Local Chrome configuration
-          product: "chrome",
-          executablePath:
-            "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", // Windows Chrome path
-          headless: true,
-        }
-      : {
-          // Vercel/Lambda configuration
-          args: [
-            ...chromium.args,
-            "--hide-scrollbars",
-            "--disable-web-security",
-          ],
-          defaultViewport: chromium.defaultViewport,
-          executablePath: await chromium.executablePath,
-          headless: chromium.headless,
-          ignoreHTTPSErrors: true,
-        };
-
-    console.log(
-      "Launching browser with options:",
-      JSON.stringify(options, null, 2)
-    );
-    browser = await puppeteer.launch(options);
+    browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true,
+    });
 
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
