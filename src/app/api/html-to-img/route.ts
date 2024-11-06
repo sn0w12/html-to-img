@@ -64,8 +64,16 @@ export async function POST(request: Request): Promise<Response> {
             "--font-render-hinting=none",
             "--disable-font-subpixel-positioning",
             "--enable-font-antialiasing",
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-gpu",
+            "--font-render-hinting=medium",
           ],
-          defaultViewport: chromium.defaultViewport,
+          defaultViewport: {
+            width: 1280,
+            height: 720,
+            deviceScaleFactor: 1,
+          },
           executablePath: await chromium.executablePath(),
           headless: chromium.headless,
           ignoreHTTPSErrors: true,
@@ -92,8 +100,13 @@ export async function POST(request: Request): Promise<Response> {
       await page.addStyleTag({
         content: `
             @font-face {
-              font-family: 'FOT-Matisse-Pro-EB';
-              src: url("data:font/woff;base64,${fontBase64}") format('woff');
+                font-family: 'FOT-Matisse-Pro-EB';
+                src: url("data:font/woff;base64,${fontBase64}") format('woff');
+                font-weight: normal;
+                font-style: normal;
+            }
+            * {
+                font-family: 'FOT-Matisse-Pro-EB' !important;
             }
           `,
       });
