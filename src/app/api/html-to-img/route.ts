@@ -151,11 +151,3 @@ export async function POST(request: Request): Promise<Response> {
     }
   }
 }
-
-// Cleanup function for serverless environments
-export async function cleanup() {
-  if (browserInstance) {
-    await browserInstance.close();
-    browserInstance = null;
-  }
-}
