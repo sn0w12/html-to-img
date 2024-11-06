@@ -46,8 +46,32 @@ export async function POST(request: Request): Promise<Response> {
       ignoreHTTPSErrors: true,
     });
 
+    // Inside your route handler
     const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+
+    // Inject custom font CSS before setting content
+    const customCSS = `
+@font-face {
+    font-family: "FOTMatisseProToaruEB";
+    src: url(../../fonts/FOT-Matisse-Pro-EB.woff) format("woff");
+    font-weight: normal;
+    font-style: normal;
+}
+body {
+    font-family: "FOTMatisseProToaruEB";
+}
+    `;
+
+    // Inject CSS and HTML content
+    await page.setContent(
+      `
+<style>${customCSS}</style>
+${htmlContent}
+        `,
+      {
+        waitUntil: "networkidle0",
+      }
+    );
 
     const node = await page.$(".badge");
     if (!node) {
