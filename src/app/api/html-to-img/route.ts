@@ -34,7 +34,6 @@ export async function POST(request: Request): Promise<Response> {
       { status: 400 }
     );
   }
-  console.log("HTML content:", htmlContent);
 
   let browser = null;
   chromium.font(
@@ -86,6 +85,14 @@ export async function POST(request: Request): Promise<Response> {
       waitUntil: ["networkidle0", "load", "domcontentloaded"],
       timeout: 30000,
     });
+
+    // Wait for fonts to load
+    await page.evaluateHandle(() => {
+      return document.fonts.ready;
+    });
+
+    // Optional: Add small delay to ensure complete rendering
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     const node = await page.$(".badge");
     if (!node) {
