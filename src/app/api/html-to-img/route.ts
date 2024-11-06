@@ -36,9 +36,6 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   let browser = null;
-  await chromium.font(
-    "https://github.com/Thisisdotme/frontend-design-assets/raw/refs/heads/master/clint-eastwood/fonts/Times-New-Roman-Subsetted.woff"
-  );
   const isDevelopment = process.env.NODE_ENV === "development";
 
   try {
