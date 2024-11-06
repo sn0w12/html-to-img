@@ -73,24 +73,38 @@ export async function POST(request: Request): Promise<Response> {
 
     browser = await puppeteer.launch(puppeteerConfig);
 
-    const oldStyle = `src: url(./font/FOT-Matisse-Pro-EB.woff) format("woff");`;
-    const newStyle = `src: url("data:font/woff;base64,${fontBase64}");`;
-    htmlContent = htmlContent.replace(oldStyle, newStyle);
-
     const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
-
-    // After setting page content
-    await page.evaluateHandle("document.fonts.ready");
-
-    console.log("Checking font load status...");
-    await page.evaluate(() => {
-      return document.fonts.ready.then(() => {
-        const fonts = document.fonts.check('12px "FOT-Matisse-Pro-EB"');
-        console.log("Font loaded:", fonts);
-        return fonts;
+    try {
+      // Create CDP session for direct font control
+      const cdp = await page.target().createCDPSession();
+      await cdp.send("Page.setFontFamilies", {
+        fontFamilies: {
+          standard: "FOT-Matisse-Pro-EB",
+          fixed: "FOT-Matisse-Pro-EB",
+          serif: "FOT-Matisse-Pro-EB",
+          sansSerif: "FOT-Matisse-Pro-EB",
+          cursive: "FOT-Matisse-Pro-EB",
+          fantasy: "FOT-Matisse-Pro-EB",
+        },
       });
-    });
+
+      // Set font loading
+      await page.addStyleTag({
+        content: `
+            @font-face {
+              font-family: 'FOT-Matisse-Pro-EB';
+              src: url("data:font/woff;base64,${fontBase64}") format('woff');
+            }
+          `,
+      });
+
+      await page.setContent(htmlContent, {
+        waitUntil: ["networkidle0", "load", "domcontentloaded"],
+        timeout: 30000,
+      });
+    } catch (error) {
+      console.error("Error during font setup:", error);
+    }
 
     const node = await page.$(".badge");
     if (!node) {
