@@ -89,11 +89,14 @@ export async function POST(request: Request): Promise<Response> {
 
     const page = await browser.newPage();
     await page.evaluateOnNewDocument(`
-        @font-face {
-          font-family: 'FOT-Matisse-Pro-EB';
-          src: url('data:application/x-font-woff;charset=utf-8;base64,${fontBase64}') format('woff');
-          font-display: block;
-        }
+        (function() {
+          const fontFace = new FontFace('FOT-Matisse-Pro-EB',
+            'url(data:application/x-font-woff;charset=utf-8;base64,${fontBase64})',
+            { display: 'block' }
+          );
+          document.fonts.add(fontFace);
+          return fontFace.load();
+        })();
       `);
 
     await page.setContent(htmlContent, {
@@ -101,41 +104,37 @@ export async function POST(request: Request): Promise<Response> {
       timeout: 30000,
     });
 
-    // Inject styles with multiple approaches
+    // Single consolidated style injection
     await page.addStyleTag({
       content: `
-          @font-face {
-            font-family: 'FOT-Matisse-Pro-EB';
-            src: url('data:application/x-font-woff;charset=utf-8;base64,${fontBase64}') format('woff');
-            font-display: block;
-          }
           * {
             font-family: 'FOT-Matisse-Pro-EB' !important;
-            -webkit-font-smoothing: antialiased;
-            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+            text-rendering: geometricPrecision !important;
           }
         `,
     });
 
-    // Wait for font to load
-    await page.evaluateHandle(() => {
-      return document.fonts.ready.then(() => {
-        return new Promise((resolve) => {
-          // Additional delay to ensure font rendering
-          setTimeout(resolve, 1000);
-        });
-      });
-    });
+    // Verify font loading
+    // Change the font loading verification to:
+    await page.evaluate(
+      async (fontBase64: string) => {
+        await document.fonts.ready;
+        const font = new FontFace(
+          "FOT-Matisse-Pro-EB",
+          `url(data:application/x-font-woff;charset=utf-8;base64,${fontBase64})`
+        );
+        await font.load();
+        document.fonts.add(font);
 
-    // Force font reload
-    await page.evaluate(() => {
-      document.fonts.ready.then(() => {
+        // Force repaint
         document.body.style.opacity = "0.99";
-        setTimeout(() => {
-          document.body.style.opacity = "1";
-        }, 0);
-      });
-    });
+        await new Promise((r) => setTimeout(r, 100));
+        document.body.style.opacity = "1";
+      },
+      fontBase64 // Pass fontBase64 as argument
+    );
 
     const node = await page.$(".badge");
     if (!node) {
