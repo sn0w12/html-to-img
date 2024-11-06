@@ -61,6 +61,7 @@ body {
     font-family: "FOTMatisseProToaruEB";
 }
     `;
+    console.log(customCSS);
 
     // Inject CSS and HTML content
     await page.setContent(
