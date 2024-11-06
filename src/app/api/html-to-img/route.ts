@@ -3,14 +3,34 @@ import { NextResponse } from "next/server";
 const chromium = require("@sparticuz/chromium");
 import puppeteer from "puppeteer-core";
 
-export async function POST(request: Request): Promise<Response> {
-  const { htmlContent } = await request.json();
+const isDev = process.env.NODE_ENV === "development";
 
-  if (!htmlContent) {
+type RequestBody = {
+  htmlBase64: string;
+};
+
+export async function POST(request: Request): Promise<Response> {
+  const body = (await request.json()) as RequestBody;
+  const htmlBase64 = body.htmlBase64?.trim();
+
+  if (!htmlBase64) {
     return NextResponse.json(
       {
         result: "error",
-        data: "Missing html",
+        data: "Missing html base64 content",
+      },
+      { status: 400 }
+    );
+  }
+
+  let htmlContent;
+  try {
+    htmlContent = Buffer.from(htmlBase64, "base64").toString("utf-8");
+  } catch (error) {
+    return NextResponse.json(
+      {
+        result: "error",
+        data: "Invalid base64 content: " + (error as Error).message,
       },
       { status: 400 }
     );
@@ -19,11 +39,22 @@ export async function POST(request: Request): Promise<Response> {
   let browser = null;
 
   try {
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath,
-      headless: chromium.headless,
-    });
+    const options = isDev
+      ? {
+          // Local Chrome configuration
+          product: "chrome",
+          executablePath:
+            "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", // Windows Chrome path
+          headless: true,
+        }
+      : {
+          // Lambda configuration
+          args: chromium.args,
+          executablePath: await chromium.executablePath,
+          headless: chromium.headless,
+        };
+
+    browser = await puppeteer.launch(options);
 
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
