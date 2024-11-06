@@ -58,11 +58,12 @@ export async function POST(request: Request): Promise<Response> {
       : {
           args: [
             ...chromium.args,
-            "--enable-font-antialiasing", // Enable color antialiasing
-            "--enable-lcd-text", // Enable LCD-optimized text rendering
-            "--font-render-hinting=medium", // Medium hinting for better clarity
-            "--enable-harfbuzz-rendertext", // Better text rendering engine
-            "--disable-font-subpixel-positioning",
+            "--enable-font-antialiasing",
+            "--enable-lcd-text",
+            "--font-render-hinting=none",
+            "--enable-harfbuzz-rendertext",
+            "--enable-subpixel-positioning",
+            // Keep these for serverless environment
             "--disable-gpu",
             "--disable-dev-shm-usage",
             "--disable-setuid-sandbox",
