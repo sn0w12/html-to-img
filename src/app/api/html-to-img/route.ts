@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import chrome from "chrome-aws-lambda";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const chromium = require("chrome-aws-lambda");
 import puppeteer from "puppeteer-core";
 
 export async function POST(request: Request): Promise<Response> {
@@ -19,9 +20,9 @@ export async function POST(request: Request): Promise<Response> {
 
   try {
     browser = await puppeteer.launch({
-      args: chrome.args,
-      executablePath: await chrome.executablePath,
-      headless: chrome.headless,
+      args: chromium.args,
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless,
     });
 
     const page = await browser.newPage();
