@@ -86,13 +86,16 @@ export async function POST(request: Request): Promise<Response> {
       timeout: 30000,
     });
 
-    // Wait for fonts to load
-    await page.evaluateHandle(() => {
-      return document.fonts.ready;
-    });
-
-    // Optional: Add small delay to ensure complete rendering
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // More comprehensive font loading check
+    await page.evaluate(() => {
+      return new Promise((resolve) => {
+        if (document.fonts.status === "loaded") {
+          resolve(true);
+        } else {
+          document.fonts.ready.then(() => resolve(true));
+        }
+      });
+    });;
 
     const node = await page.$(".badge");
     if (!node) {
