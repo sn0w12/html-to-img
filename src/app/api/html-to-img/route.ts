@@ -96,24 +96,29 @@ export async function POST(request: Request): Promise<Response> {
         },
       });
 
-      // Set font loading
-      await page.addStyleTag({
-        content: `
-            @font-face {
-                font-family: 'FOT-Matisse-Pro-EB';
-                src: url("https://github.com/sn0w12/html-to-img/raw/refs/heads/master/src/app/fonts/FOT-Matisse-Pro-EB.woff") format('woff');
-                font-weight: normal;
-                font-style: normal;
-            }
-            * {
-                font-family: 'FOT-Matisse-Pro-EB' !important;
-            }
-          `,
-      });
-
+      // Set content first
       await page.setContent(htmlContent, {
         waitUntil: ["networkidle0", "load", "domcontentloaded"],
         timeout: 30000,
+      });
+
+      // Then inject font styles
+      await page.addStyleTag({
+        content: `
+          * {
+            font-family: 'FOT-Matisse-Pro-EB' !important;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+          }
+        `,
+      });
+
+      // Force a repaint and wait for fonts
+      await page.evaluate(() => {
+        document.fonts.ready.then(() => {
+          document.body.style.opacity = "0.99";
+          setTimeout(() => (document.body.style.opacity = "1"), 0);
+        });
       });
     } catch (error) {
       console.error("Error during font setup:", error);
