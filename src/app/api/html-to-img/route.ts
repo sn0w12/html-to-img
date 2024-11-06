@@ -95,7 +95,17 @@ export async function POST(request: Request): Promise<Response> {
           document.fonts.ready.then(() => resolve(true));
         }
       });
-    });;
+    });
+
+    await page.evaluate(() => {
+      document.body.style.opacity = "0.99";
+      return new Promise((resolve) => {
+        requestAnimationFrame(() => {
+          document.body.style.opacity = "1";
+          resolve(true);
+        });
+      });
+    });
 
     const node = await page.$(".badge");
     if (!node) {
