@@ -76,10 +76,21 @@ export async function POST(request: Request): Promise<Response> {
     const oldStyle = `src: url(./font/FOT-Matisse-Pro-EB.woff) format("woff");`;
     const newStyle = `src: url("data:font/woff;base64,${fontBase64}");`;
     htmlContent = htmlContent.replace(oldStyle, newStyle);
-    console.log(htmlContent);
 
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+
+    // After setting page content
+    await page.evaluateHandle("document.fonts.ready");
+
+    console.log("Checking font load status...");
+    await page.evaluate(() => {
+      return document.fonts.ready.then(() => {
+        const fonts = document.fonts.check('12px "FOT-Matisse-Pro-EB"');
+        console.log("Font loaded:", fonts);
+        return fonts;
+      });
+    });
 
     const node = await page.$(".badge");
     if (!node) {
