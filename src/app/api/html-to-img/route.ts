@@ -4,6 +4,7 @@ const puppeteer = require("puppeteer-core");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const chromium = require("@sparticuz/chromium");
 import path from "path";
+import fs from "fs/promises";
 
 type RequestBody = {
   htmlBase64: string;
@@ -43,8 +44,8 @@ export async function POST(request: Request): Promise<Response> {
     "src/app/fonts/FOT-Matisse-Pro-EB.woff"
   );
   const normalizedPath = fontPath.replace(/^[A-Z]:/i, "");
-  console.log("Normalized font path:", normalizedPath);
-  await chromium.font(normalizedPath);
+  const fontContent = await fs.readFile(normalizedPath);
+  const fontBase64 = fontContent.toString("base64");
 
   try {
     const puppeteerConfig = isDevelopment
@@ -88,19 +89,6 @@ export async function POST(request: Request): Promise<Response> {
 
     const page = await browser.newPage();
     try {
-      // Create CDP session for direct font control
-      const cdp = await page.target().createCDPSession();
-      await cdp.send("Page.setFontFamilies", {
-        fontFamilies: {
-          standard: "FOT-Matisse-Pro-EB",
-          fixed: "FOT-Matisse-Pro-EB",
-          serif: "FOT-Matisse-Pro-EB",
-          sansSerif: "FOT-Matisse-Pro-EB",
-          cursive: "FOT-Matisse-Pro-EB",
-          fantasy: "FOT-Matisse-Pro-EB",
-        },
-      });
-
       // Set content first
       await page.setContent(htmlContent, {
         waitUntil: ["networkidle0", "load", "domcontentloaded"],
@@ -112,7 +100,7 @@ export async function POST(request: Request): Promise<Response> {
         content: `
             @font-face {
                 font-family: "FOT-Matisse-Pro-EB";
-                src: url(${normalizedPath}) format("woff");
+                src: url('data:application/x-font-woff;charset=utf-8;base64,${fontBase64}') format('woff');
                 font-weight: normal;
                 font-style: normal;
             }
