@@ -88,30 +88,54 @@ export async function POST(request: Request): Promise<Response> {
     browser = await puppeteer.launch(puppeteerConfig);
 
     const page = await browser.newPage();
-    try {
-      // Set content first
-      await page.setContent(htmlContent, {
-        waitUntil: ["networkidle0", "load", "domcontentloaded"],
-        timeout: 30000,
-      });
+    await page.evaluateOnNewDocument(`
+        @font-face {
+          font-family: 'FOT-Matisse-Pro-EB';
+          src: url('data:application/x-font-woff;charset=utf-8;base64,${fontBase64}') format('woff');
+          font-display: block;
+        }
+      `);
 
-      // Then inject font styles
-      await page.addStyleTag({
-        content: `
-            @font-face {
-                font-family: "FOT-Matisse-Pro-EB";
-                src: url('data:application/x-font-woff;charset=utf-8;base64,${fontBase64}') format('woff');
-                font-weight: normal;
-                font-style: normal;
-            }
-            * {
-                font-family: 'FOT-Matisse-Pro-EB' !important;
-            }
+    await page.setContent(htmlContent, {
+      waitUntil: ["networkidle0", "load", "domcontentloaded"],
+      timeout: 30000,
+    });
+
+    // Inject styles with multiple approaches
+    await page.addStyleTag({
+      content: `
+          @font-face {
+            font-family: 'FOT-Matisse-Pro-EB';
+            src: url('data:application/x-font-woff;charset=utf-8;base64,${fontBase64}') format('woff');
+            font-display: block;
+          }
+          * {
+            font-family: 'FOT-Matisse-Pro-EB' !important;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+          }
         `,
+    });
+
+    // Wait for font to load
+    await page.evaluateHandle(() => {
+      return document.fonts.ready.then(() => {
+        return new Promise((resolve) => {
+          // Additional delay to ensure font rendering
+          setTimeout(resolve, 1000);
+        });
       });
-    } catch (error) {
-      console.error("Error during font setup:", error);
-    }
+    });
+
+    // Force font reload
+    await page.evaluate(() => {
+      document.fonts.ready.then(() => {
+        document.body.style.opacity = "0.99";
+        setTimeout(() => {
+          document.body.style.opacity = "1";
+        }, 0);
+      });
+    });
 
     const node = await page.$(".badge");
     if (!node) {
