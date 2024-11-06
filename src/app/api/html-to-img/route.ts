@@ -104,7 +104,7 @@ export async function POST(request: Request): Promise<Response> {
         content: `
             @font-face {
                 font-family: 'FOT-Matisse-Pro-EB';
-                src: url("data:font/woff;base64,${fontBase64}") format('woff');
+                src: url("https://github.com/sn0w12/html-to-img/raw/refs/heads/master/src/app/fonts/FOT-Matisse-Pro-EB.woff") format('woff');
                 font-weight: normal;
                 font-style: normal;
             }
