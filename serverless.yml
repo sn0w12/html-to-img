@@ -1,0 +1,9 @@
+webpack:
+  webpackConfig: ./webpack.config.js
+  includeModules:
+    packagePath: "./package.json"
+    forceInclude:
+      - source-map-support
+    forceExclude:
+      - aws-sdk
+      - chrome-aws-lambda

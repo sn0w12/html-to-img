@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const chromium = require("chrome-aws-lambda");
+const chromium = require("@sparticuz/chromium");
 import puppeteer from "puppeteer-core";
 
 export async function POST(request: Request): Promise<Response> {
