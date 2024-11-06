@@ -58,13 +58,11 @@ export async function POST(request: Request): Promise<Response> {
       : {
           args: [
             ...chromium.args,
-            "--font-render-hinting=none",
-            "--disable-font-subpixel-positioning",
-            "--enable-font-antialiasing",
-            "--no-sandbox",
-            "--disable-setuid-sandbox",
             "--disable-gpu",
-            "--font-render-hinting=medium",
+            "--disable-dev-shm-usage",
+            "--disable-setuid-sandbox",
+            "--no-sandbox",
+            "--single-process",
           ],
           defaultViewport: {
             width: 1280,
