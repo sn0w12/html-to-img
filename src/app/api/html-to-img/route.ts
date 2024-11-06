@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 const puppeteer = require("puppeteer-core");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const chromium = require("@sparticuz/chromium");
+import path from "path";
 
 type RequestBody = {
   htmlBase64: string;
@@ -37,9 +38,13 @@ export async function POST(request: Request): Promise<Response> {
 
   let browser = null;
   const isDevelopment = process.env.NODE_ENV === "development";
-  await chromium.font(
-    "https://github.com/sn0w12/html-to-img/raw/refs/heads/master/src/app/fonts/FOT-Matisse-Pro-EB.woff"
+  const fontPath = path.join(
+    process.cwd(),
+    "src/app/fonts/FOT-Matisse-Pro-EB.woff"
   );
+  const normalizedPath = fontPath.replace(/^[A-Z]:/i, "");
+  console.log("Normalized font path:", normalizedPath);
+  await chromium.font(normalizedPath);
 
   try {
     const puppeteerConfig = isDevelopment
