@@ -34,6 +34,7 @@ export async function POST(request: Request): Promise<Response> {
       { status: 400 }
     );
   }
+  console.log("HTML content:", htmlContent);
 
   let browser = null;
   const isDevelopment = process.env.NODE_ENV === "development";
@@ -62,6 +63,7 @@ export async function POST(request: Request): Promise<Response> {
             "--disable-dev-shm-usage",
             "--disable-setuid-sandbox",
             "--no-sandbox",
+            "--disable-web-security",
             "--single-process",
           ],
           defaultViewport: {
