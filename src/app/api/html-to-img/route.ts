@@ -61,8 +61,6 @@ export async function POST(request: Request): Promise<Response> {
             "--enable-font-antialiasing",
             "--enable-lcd-text",
             "--font-render-hinting=none",
-            "--enable-harfbuzz-rendertext",
-            "--enable-subpixel-positioning",
             // Keep these for serverless environment
             "--disable-gpu",
             "--disable-dev-shm-usage",
