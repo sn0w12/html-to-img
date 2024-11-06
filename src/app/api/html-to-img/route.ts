@@ -39,6 +39,15 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     const image = await node.screenshot({ type: "png" });
+    if (!image) {
+      return NextResponse.json(
+        {
+          result: "error",
+          data: "Failed to capture screenshot",
+        },
+        { status: 500 }
+      );
+    }
     return new Response(image, {
       headers: {
         "Content-Type": "image/png",
