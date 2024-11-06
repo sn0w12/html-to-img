@@ -48,12 +48,22 @@ export async function POST(request: Request): Promise<Response> {
           headless: true,
         }
       : {
-          // Lambda configuration
-          args: chromium.args,
+          // Vercel/Lambda configuration
+          args: [
+            ...chromium.args,
+            "--hide-scrollbars",
+            "--disable-web-security",
+          ],
+          defaultViewport: chromium.defaultViewport,
           executablePath: await chromium.executablePath,
           headless: chromium.headless,
+          ignoreHTTPSErrors: true,
         };
 
+    console.log(
+      "Launching browser with options:",
+      JSON.stringify(options, null, 2)
+    );
     browser = await puppeteer.launch(options);
 
     const page = await browser.newPage();
