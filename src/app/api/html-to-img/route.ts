@@ -39,19 +39,44 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   let browser = null;
+  const isDevelopment = process.env.NODE_ENV === "development";
 
   try {
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-      ignoreHTTPSErrors: true,
-    });
+    const puppeteerConfig = isDevelopment
+      ? {
+          args: [
+            "--font-render-hinting=none",
+            "--disable-font-subpixel-positioning",
+            "--enable-font-antialiasing",
+          ],
+          headless: "new",
+          executablePath:
+            "c:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          defaultViewport: {
+            width: 1280,
+            height: 720,
+          },
+          ignoreHTTPSErrors: true,
+        }
+      : {
+          args: [
+            ...chromium.args,
+            "--font-render-hinting=none",
+            "--disable-font-subpixel-positioning",
+            "--enable-font-antialiasing",
+          ],
+          defaultViewport: chromium.defaultViewport,
+          executablePath: await chromium.executablePath(),
+          headless: chromium.headless,
+          ignoreHTTPSErrors: true,
+        };
+
+    browser = await puppeteer.launch(puppeteerConfig);
 
     const oldStyle = `src: url(./font/FOT-Matisse-Pro-EB.woff) format("woff");`;
-    const newStyle = `src: url("data:font/ttf;base64,${fontBase64}");`;
+    const newStyle = `src: url("data:font/woff;base64,${fontBase64}");`;
     htmlContent = htmlContent.replace(oldStyle, newStyle);
+    console.log(htmlContent);
 
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
