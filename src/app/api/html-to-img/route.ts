@@ -89,6 +89,7 @@ export async function POST(request: Request): Promise<Response> {
     const page = await browser.newPage();
     try {
       // Create CDP session for direct font control
+      /*
       const cdp = await page.target().createCDPSession();
       await cdp.send("Page.setFontFamilies", {
         fontFamilies: {
@@ -100,6 +101,7 @@ export async function POST(request: Request): Promise<Response> {
           fantasy: "FOT-Matisse-Pro-EB",
         },
       });
+      */
 
       // Set content first
       await page.setContent(htmlContent, {
@@ -110,11 +112,15 @@ export async function POST(request: Request): Promise<Response> {
       // Then inject font styles
       await page.addStyleTag({
         content: `
-          * {
-            font-family: 'FOT-Matisse-Pro-EB' !important;
-            -webkit-font-smoothing: antialiased;
-            text-rendering: optimizeLegibility;
-          }
+            @font-face {
+                font-family: "FOT-Matisse-Pro-EB";
+                src: url(${normalizedPath}) format("woff");
+                font-weight: normal;
+                font-style: normal;
+            }
+            * {
+                font-family: 'FOT-Matisse-Pro-EB' !important;
+            }
         `,
       });
 
