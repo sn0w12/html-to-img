@@ -40,6 +40,7 @@ export async function POST(request: Request): Promise<Response> {
 
   let browser = null;
   const isDevelopment = process.env.NODE_ENV === "development";
+  await chromium.font("../../fonts/FOT-Matisse-Pro-EB.woff");
 
   try {
     const puppeteerConfig = isDevelopment
