@@ -22,7 +22,7 @@ export default function Home() {
             try {
                 const [messageStats, userMap] = await Promise.all([
                     getMessageStats(),
-                    getUsernameMap(process.env.NEXT_PUBLIC_GUILD_ID!),
+                    getUsernameMap("527960994677522438"),
                 ]);
 
                 const enrichedStats = messageStats.map((stat) => {
