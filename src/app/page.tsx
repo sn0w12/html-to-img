@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMessageStats } from "@/lib/piego";
-import { userMap } from "@/lib/constants";
+import { getMessageStats, getUserMap } from "@/lib/piego";
 
 interface EnrichedMessageStats {
     user_id: number;
@@ -20,8 +19,10 @@ export default function Home() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const messageStats = await getMessageStats();
-                console.log(messageStats);
+                const [messageStats, userMap] = await Promise.all([
+                    getMessageStats(),
+                    getUserMap(),
+                ]);
 
                 const enrichedStats = messageStats.map((stat) => {
                     const userInfo = userMap[stat.user_id.toString()] || {

@@ -18,6 +18,33 @@ interface ApiMessageItem {
     message_count: number;
 }
 
+interface UserMap {
+    [key: string]: {
+        username: string;
+        displayName: string;
+    };
+}
+
+interface ApiUser {
+    discord_id: number;
+    username: string;
+    display_name: string;
+}
+
+export async function getUserMap(): Promise<UserMap> {
+    const url = `${API_URL}/users`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    return data.items.reduce((acc: UserMap, user: ApiUser) => {
+        acc[user.discord_id.toString()] = {
+            username: user.username,
+            displayName: user.display_name,
+        };
+        return acc;
+    }, {});
+}
+
 export async function getMessageStats(
     endDayOffset: number = 0,
     startDayOffset: number = 30
@@ -51,18 +78,4 @@ export async function getMessageStats(
     );
 
     return Object.values(userStats);
-}
-
-export async function getVoiceStats(
-    startDayOffset: number = 0,
-    endDayOffset: number = 30
-) {
-    const startTimestamp = getDateNDaysAgo(startDayOffset);
-    const endTimestamp = getDateNDaysAgo(endDayOffset);
-
-    const url = `${API_URL}/voice_sessions/all?start_time=${startTimestamp}&end_time=${endTimestamp}`;
-    const response = await fetch(url);
-    const data = await response.json();
-
-    return data.items;
 }
