@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getMessageStats } from "@/lib/piego";
-import { getUsernameMap } from "@/lib/discord";
+import { userMap } from "@/lib/constants";
 
 interface EnrichedMessageStats {
     user_id: number;
@@ -20,13 +20,11 @@ export default function Home() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const [messageStats, userMap] = await Promise.all([
-                    getMessageStats(),
-                    getUsernameMap("527960994677522438"),
-                ]);
+                const messageStats = await getMessageStats();
+                console.log(messageStats);
 
                 const enrichedStats = messageStats.map((stat) => {
-                    const userInfo = userMap.get(stat.user_id.toString()) || {
+                    const userInfo = userMap[stat.user_id.toString()] || {
                         username: "Unknown",
                         displayName: "Unknown",
                     };
@@ -74,7 +72,7 @@ export default function Home() {
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
+                    <tbody className="divide-y divide-gray-200 text-black">
                         {stats.map((stat) => (
                             <tr key={stat.user_id}>
                                 <td className="px-6 py-4 whitespace-nowrap">

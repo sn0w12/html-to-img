@@ -3,7 +3,7 @@ import { API_URL } from "./constants";
 function getDateNDaysAgo(days: number): string {
     const date = new Date();
     date.setDate(date.getDate() - days);
-    return date.toISOString();
+    return date.toISOString().replace(/\.\d+Z$/, "Z");
 }
 
 interface UserMessageStats {
@@ -19,8 +19,8 @@ interface ApiMessageItem {
 }
 
 export async function getMessageStats(
-    startDayOffset: number = 0,
-    endDayOffset: number = 30
+    endDayOffset: number = 0,
+    startDayOffset: number = 30
 ): Promise<UserMessageStats[]> {
     const startTimestamp = getDateNDaysAgo(startDayOffset);
     const endTimestamp = getDateNDaysAgo(endDayOffset);
