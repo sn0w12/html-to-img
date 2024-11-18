@@ -8,14 +8,25 @@ function getDateNDaysAgo(days: number): string {
 
 interface UserMessageStats {
     user_id: number;
-    sent: number;
-    deleted: number;
+    stats: [
+        {
+            type: string;
+            date: string;
+            count: number;
+        }
+    ];
 }
 
 interface ApiMessageItem {
     user_id: number;
     type: string;
     message_count: number;
+}
+
+interface UserVoiceStats {
+    user_id: number;
+    session_count: number;
+    total_duration: number;
 }
 
 interface UserMap {
@@ -56,26 +67,22 @@ export async function getMessageStats(
     const response = await fetch(url);
     const data = await response.json();
 
-    const userStats = data.items.reduce(
-        (acc: { [key: string]: UserMessageStats }, item: ApiMessageItem) => {
-            if (!acc[item.user_id]) {
-                acc[item.user_id] = {
-                    user_id: item.user_id,
-                    sent: 0,
-                    deleted: 0,
-                };
-            }
+    return data.items.map((item: { user_id: number; user_data: string }) => ({
+        userId: item.user_id,
+        stats: JSON.parse(item.user_data),
+    }));
+}
 
-            if (item.type === "sent") {
-                acc[item.user_id].sent = item.message_count;
-            } else if (item.type === "deleted") {
-                acc[item.user_id].deleted = item.message_count;
-            }
+export async function getVoiceStats(
+    endDayOffset: number = 0,
+    startDayOffset: number = 30
+): Promise<UserVoiceStats[]> {
+    const startTimestamp = getDateNDaysAgo(startDayOffset);
+    const endTimestamp = getDateNDaysAgo(endDayOffset);
 
-            return acc;
-        },
-        {}
-    );
+    const url = `${API_URL}/voice_sessions/all?start_time=${startTimestamp}&end_time=${endTimestamp}`;
+    const response = await fetch(url);
+    const data = await response.json();
 
-    return Object.values(userStats);
+    return data.items;
 }
