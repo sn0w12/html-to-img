@@ -40,7 +40,6 @@ export async function getUserMap(): Promise<UserMap> {
     const url = `${API_URL}/users`;
     const response = await fetch(url);
     const data = await response.json();
-    console.log(data);
 
     return data.items.reduce((acc: UserMap, user: ApiUser) => {
         acc[user.discord_id.toString()] = {
@@ -61,7 +60,6 @@ export async function getMessageStats(
     const url = `${API_URL}/messages/all?start_time=${startTimestamp}&end_time=${endTimestamp}`;
     const response = await fetch(url);
     const data = await response.json();
-    console.log(data);
 
     return data.items.map((item: { user_id: number; user_data: string }) => ({
         userId: item.user_id,
@@ -79,7 +77,6 @@ export async function getVoiceStats(
     const url = `${API_URL}/voice_sessions/all?start_time=${startTimestamp}&end_time=${endTimestamp}`;
     const response = await fetch(url);
     const data = await response.json();
-    console.log(data);
 
     return data.items;
 }
