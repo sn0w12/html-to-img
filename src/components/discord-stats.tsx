@@ -41,8 +41,8 @@ interface ServerStats {
 
 export function DiscordStatsComponent() {
     const [activeTab, setActiveTab] = useState("server");
-    const [stats, setStats] = useState<UserStats[]>([]);
-    const [serverStats, setServerStats] = useState<ServerStats>();
+    const [stats] = useState<UserStats[]>([]);
+    const [serverStats] = useState<ServerStats>();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -59,7 +59,7 @@ export function DiscordStatsComponent() {
                 console.log(messageStats, voiceStats, userMap);
             } catch (err) {
                 setError(
-                    err instanceof Error ? err.message : "An error occurred"
+                    err instanceof Error ? err.message : "An error occurred",
                 );
             } finally {
                 setLoading(false);
@@ -126,16 +126,8 @@ export function DiscordStatsComponent() {
 
 function ServerStats({ stats }: { stats: ServerStats }) {
     const messageData = stats.messageStats.sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
-
-    const totalSent = messageData.reduce((sum, day) => sum + day.sent, 0);
-    const totalDeleted = messageData.reduce((sum, day) => sum + day.deleted, 0);
-
-    const pieData = [
-        { name: "Sent", value: totalSent },
-        { name: "Deleted", value: totalDeleted },
-    ];
 
     const voiceData = [
         {
@@ -219,7 +211,7 @@ function ServerStats({ stats }: { stats: ServerStats }) {
 
 function UserStats({ user }: { user: UserStats }) {
     const messageData = user.stats.sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
     const totalSent = messageData.reduce((sum, day) => sum + day.sent, 0);
     const totalDeleted = messageData.reduce((sum, day) => sum + day.deleted, 0);
@@ -283,7 +275,7 @@ function UserStats({ user }: { user: UserStats }) {
                                         dataKey="value"
                                         label={({ name, percent }) =>
                                             `${name} ${(percent * 100).toFixed(
-                                                0
+                                                0,
                                             )}%`
                                         }
                                     >

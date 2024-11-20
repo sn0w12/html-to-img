@@ -13,14 +13,8 @@ interface UserMessageStats {
             type: string;
             date: string;
             count: number;
-        }
+        },
     ];
-}
-
-interface ApiMessageItem {
-    user_id: number;
-    type: string;
-    message_count: number;
 }
 
 interface UserVoiceStats {
@@ -58,7 +52,7 @@ export async function getUserMap(): Promise<UserMap> {
 
 export async function getMessageStats(
     endDayOffset: number = 0,
-    startDayOffset: number = 30
+    startDayOffset: number = 30,
 ): Promise<UserMessageStats[]> {
     const startTimestamp = getDateNDaysAgo(startDayOffset);
     const endTimestamp = getDateNDaysAgo(endDayOffset);
@@ -75,7 +69,7 @@ export async function getMessageStats(
 
 export async function getVoiceStats(
     endDayOffset: number = 0,
-    startDayOffset: number = 30
+    startDayOffset: number = 30,
 ): Promise<UserVoiceStats[]> {
     const startTimestamp = getDateNDaysAgo(startDayOffset);
     const endTimestamp = getDateNDaysAgo(endDayOffset);

@@ -15,7 +15,7 @@ function isSingleHtml(html: string | string[]): html is string {
 
 async function processHtml(
     htmlBase64: string,
-    browser: Browser
+    browser: Browser,
 ): Promise<Buffer | null> {
     if (!htmlBase64?.trim()) {
         throw new Error("Missing html base64 content");
@@ -30,7 +30,7 @@ async function processHtml(
 
     const page = await browser.newPage();
     await page.setUserAgent(
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36"
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36",
     );
     await page.setContent(htmlContent, {
         waitUntil: ["networkidle0", "load", "domcontentloaded"],
@@ -74,7 +74,7 @@ export async function POST(request: Request): Promise<Response> {
     if (!htmlBase64) {
         return NextResponse.json(
             { result: "error", data: "Missing html base64 content" },
-            { status: 400 }
+            { status: 400 },
         );
     }
 
@@ -122,7 +122,7 @@ export async function POST(request: Request): Promise<Response> {
         if (!browser) {
             return NextResponse.json(
                 { result: "error", data: "Failed to launch browser" },
-                { status: 500 }
+                { status: 500 },
             );
         }
 
@@ -131,7 +131,7 @@ export async function POST(request: Request): Promise<Response> {
             if (!image) {
                 return NextResponse.json(
                     { result: "error", data: "Failed to capture screenshot" },
-                    { status: 500 }
+                    { status: 500 },
                 );
             }
             return new Response(image, {
@@ -139,7 +139,7 @@ export async function POST(request: Request): Promise<Response> {
             });
         } else {
             const images = await Promise.all(
-                htmlBase64.map((html) => processHtml(html, browser as Browser))
+                htmlBase64.map((html) => processHtml(html, browser as Browser)),
             );
 
             if (images.some((img) => !img)) {
@@ -148,14 +148,14 @@ export async function POST(request: Request): Promise<Response> {
                         result: "error",
                         data: "Failed to capture one or more screenshots",
                     },
-                    { status: 500 }
+                    { status: 500 },
                 );
             }
 
             return NextResponse.json({
                 result: "success",
                 data: images.map((img) =>
-                    Buffer.from(img as Buffer).toString("base64")
+                    Buffer.from(img as Buffer).toString("base64"),
                 ),
             });
         }
@@ -166,7 +166,7 @@ export async function POST(request: Request): Promise<Response> {
                 result: "error",
                 data: (error as Error).message || "Error generating image",
             },
-            { status: 500 }
+            { status: 500 },
         );
     } finally {
         if (browser) {

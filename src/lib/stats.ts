@@ -2,7 +2,7 @@ export function calculateElo(
     vc: number,
     vcm: number,
     msg: number,
-    msgd: number
+    msgd: number,
 ) {
     const VC_WEIGHT = 0.8;
     const VCM_WEIGHT = -1.0;
