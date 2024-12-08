@@ -1,6 +1,5 @@
 {
     "extends": ["next/core-web-vitals", "next/typescript"],
-    "plugins": ["prettier"],
     "env": {
         "browser": true,
         "node": true,
@@ -10,15 +9,5 @@
         "react": {
             "version": "detect"
         }
-    },
-    "rules": {
-        "prettier/prettier": [
-            "error",
-            {
-                "tabWidth": 4,
-                "useTabs": false,
-                "endOfLine": "auto"
-            }
-        ]
     }
 }
